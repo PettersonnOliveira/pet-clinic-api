@@ -1,189 +1,189 @@
 # 🐶 Pet Clinic API
-
-A REST API built to manage a veterinary clinic: registration of owners and their pets. Allows you to query, update, and remove both owners and animals, maintaining the relationship between them.
-
-This is the fifth project in my Java and Spring Boot learning portfolio, focusing on bidirectional relationships between entities (`@OneToMany` / `@ManyToOne`) and DTOs that expose only summarized data from a related entity.
-
-## 💡 Problem it solves
-
-Veterinary clinics that control records manually or in a dispersed manner face problems such as:
-
-- Losing the link between a pet and its owner
-- Registering a pet without ensuring that the specified owner actually exists
-- Lack of a centralized and searchable registry of owners and animals
-
-The Pet Clinic API solves this by centralizing owner and pet registration, ensuring that every pet is always associated with a valid owner.
-
-## 🛠️ Technologies used
-
+ 
+API REST desenvolvida para gerenciar uma clínica veterinária: cadastro de tutores (owners) e de seus pets. Permite consultar, atualizar e remover tanto tutores quanto animais, mantendo o vínculo entre eles.
+ 
+Este é o quinto projeto do meu portfólio de estudos em Java e Spring Boot, com foco em relacionamento bidirecional entre entidades (`@OneToMany` / `@ManyToOne`) e DTOs que expõem apenas dados resumidos de uma entidade relacionada.
+ 
+## 💡 Problema que resolve
+ 
+Clínicas veterinárias que controlam cadastros de forma manual ou dispersa enfrentam problemas como:
+ 
+- Perder o vínculo entre um pet e seu tutor
+- Cadastrar um pet sem garantir que o tutor informado realmente existe
+- Falta de um cadastro centralizado e consultável de tutores e animais
+ 
+A Pet Clinic API resolve isso centralizando o cadastro de tutores e pets, garantindo que todo pet esteja sempre associado a um tutor válido.
+ 
+## 🛠️ Tecnologias utilizadas
+ 
 - **Java 21**
 - **Spring Boot**
 - **Spring Web** (REST API)
 - **Spring Data JPA**
 - **MySQL**
-- **Bean Validation** (input data validation)
+- **Bean Validation** (validação de dados de entrada)
 - **Maven**
-
-## 🏗️ Architecture
-
+ 
+## 🏗️ Arquitetura
+ 
 ```
-Controller → Service → Repository → Database
+Controller → Service → Repository → Banco de Dados
 ```
-
-- **Controller**: receives HTTP requests and returns responses
-- **Service**: contains business logic, including validation that the owner exists before registering a pet
-- **Repository**: database communication
-- **DTOs**: protect the API — the `PetResponseDTO` exposes only the owner's name (`ownerName`), without nesting the entire `Owner` object
-- **Exceptions**: custom exceptions captured globally, ensuring consistent error responses
-
-## 📦 Data model
-
+ 
+- **Controller**: recebe requisições HTTP e devolve respostas
+- **Service**: contém as regras de negócio, incluindo a validação de que o tutor existe antes de cadastrar um pet
+- **Repository**: comunicação com o banco de dados
+- **DTOs**: protegem a API — o `PetResponseDTO` expõe apenas o nome do tutor (`ownerName`), sem aninhar o objeto `Owner` inteiro
+- **Exceptions**: exceções customizadas capturadas globalmente, garantindo respostas de erro consistentes
+ 
+## 📦 Modelo de dados
+ 
 ### Owner
-| Field | Type |
+| Campo | Tipo |
 |---|---|
 | id | Long |
 | name | String |
 | email | String |
 | phone | String |
-| pets | List\<Pet\> (`@OneToMany` relationship) |
-
+| pets | List\<Pet\> (relacionamento `@OneToMany`) |
+ 
 ### Pet
-| Field | Type |
+| Campo | Tipo |
 |---|---|
 | id | Long |
 | name | String |
 | species | String |
 | breed | String |
 | age | Integer |
-| owner | Owner (`@ManyToOne` relationship) |
-
-## 🧠 Relationship
-
+| owner | Owner (relacionamento `@ManyToOne`) |
+ 
+## 🧠 Relacionamento
+ 
 ```
 1 Owner
   ↓
   N Pets
 ```
-
-- `Owner` → `@OneToMany(mappedBy = "owner")` → one owner can have multiple pets
-- `Pet` → `@ManyToOne` → each pet belongs to exactly one owner
-
-Unlike previous projects (which used an intermediate entity for N:N relationships), here the relationship is a direct 1:N chain — simpler to model, but this was my first time dealing with a **bidirectional** relationship: the list of pets is visible from the `Owner`, and the `owner` is visible from the `Pet`.
-
-## 📌 Available endpoints
-
+ 
+- `Owner` → `@OneToMany(mappedBy = "owner")` → um tutor pode ter vários pets
+- `Pet` → `@ManyToOne` → cada pet pertence a exatamente um tutor
+ 
+Diferente dos projetos anteriores (que usavam uma entidade intermediária para relações N:N), aqui a relação é uma cadeia direta 1:N — mais simples de modelar, mas foi a primeira vez lidando com o relacionamento **bidirecional**: a lista de pets é visível a partir do `Owner`, e o `owner` é visível a partir do `Pet`.
+ 
+## 📌 Endpoints disponíveis
+ 
 ### Owners
-| Action | Method | Route |
+| Ação | Método | Rota |
 |---|---|---|
-| Register owner | `POST` | `/owners` |
-| List owners | `GET` | `/owners` |
-| Get owner by ID | `GET` | `/owners/{id}` |
-| Update owner | `PUT` | `/owners/{id}` |
-| Delete owner | `DELETE` | `/owners/{id}` |
-
+| Cadastrar tutor | `POST` | `/owners` |
+| Listar tutores | `GET` | `/owners` |
+| Buscar tutor por ID | `GET` | `/owners/{id}` |
+| Atualizar tutor | `PUT` | `/owners/{id}` |
+| Deletar tutor | `DELETE` | `/owners/{id}` |
+ 
 ### Pets
-| Action | Method | Route |
+| Ação | Método | Rota |
 |---|---|---|
-| Register pet | `POST` | `/pets` |
-| List pets | `GET` | `/pets` |
-| Get pet by ID | `GET` | `/pets/{id}` |
-| Update pet | `PUT` | `/pets/{id}` |
-| Delete pet | `DELETE` | `/pets/{id}` |
-
-### Example — Register a pet
-
+| Cadastrar pet | `POST` | `/pets` |
+| Listar pets | `GET` | `/pets` |
+| Buscar pet por ID | `GET` | `/pets/{id}` |
+| Atualizar pet | `PUT` | `/pets/{id}` |
+| Deletar pet | `DELETE` | `/pets/{id}` |
+ 
+### Exemplo — Cadastrar pet
+ 
 **POST** `/pets`
-
+ 
 ```json
 {
   "name": "Rex",
-  "species": "Dog",
+  "species": "Cachorro",
   "breed": "Labrador",
   "age": 3,
   "ownerId": 1
 }
 ```
-
-**Response (201 Created)**
-
+ 
+**Resposta (201 Created)**
+ 
 ```json
 {
   "id": 1,
   "name": "Rex",
-  "species": "Dog",
+  "species": "Cachorro",
   "breed": "Labrador",
   "age": 3,
   "ownerName": "Camila Souza"
 }
 ```
-
-> The response shows only the owner's name (`ownerName`), not the complete `Owner` object — avoiding unnecessarily large payloads and keeping the response focused on what matters for this endpoint.
-
-## 🔥 Business rule
-
-| Rule | Behavior |
+ 
+> A resposta mostra apenas o nome do tutor (`ownerName`), não o objeto `Owner` completo — evitando payloads desnecessariamente grandes e mantendo a resposta focada no que interessa para esse endpoint.
+ 
+## 🔥 Regra de negócio
+ 
+| Regra | Comportamento |
 |---|---|
-| `ownerId` must exist to register a pet | `404 Not Found` |
-
-## ⚠️ Error handling
-
-The API uses custom exceptions, captured globally through `@RestControllerAdvice`:
-
-- **`ResourceNotFoundException`** → returns `404 Not Found` (resource not found by ID)
-- **`BusinessRuleException`** → returns `400 Bad Request` (reserved for future business rules)
-
-## ✅ Validations
-
-Input DTOs have validation via Bean Validation in required fields (`name`, `email`, `species`, among others), returning `400 Bad Request` when violated.
-
-## ⚙️ How to run the project locally
-
-### Prerequisites
-- Java 21 installed
-- MySQL running locally
-- Maven (or use the `mvnw` included in the project)
-
-### Steps
-
-1. Clone the repository
+| `ownerId` precisa existir para cadastrar um pet | `404 Not Found` |
+ 
+## ⚠️ Tratamento de erros
+ 
+A API utiliza exceções customizadas, capturadas globalmente através de `@RestControllerAdvice`:
+ 
+- **`ResourceNotFoundException`** → devolve `404 Not Found` (recurso não encontrado pelo ID)
+- **`BusinessRuleException`** → devolve `400 Bad Request` (reservada para futuras regras de negócio)
+ 
+## ✅ Validações
+ 
+Os DTOs de entrada possuem validação via Bean Validation nos campos obrigatórios (`name`, `email`, `species`, entre outros), retornando `400 Bad Request` quando violadas.
+ 
+## ⚙️ Como rodar o projeto localmente
+ 
+### Pré-requisitos
+- Java 21 instalado
+- MySQL rodando localmente
+- Maven (ou usar o `mvnw` incluso no projeto)
+ 
+### Passos
+ 
+1. Clone o repositório
 ```bash
-git clone <repository-url>
+git clone <url-do-repositorio>
 ```
-
-2. Configure the database in the `src/main/resources/application.properties` file:
+ 
+2. Configure o banco de dados no arquivo `src/main/resources/application.properties`:
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/pet_clinic?createDatabaseIfNotExist=true
-spring.datasource.username=YOUR_USER
-spring.datasource.password=YOUR_PASSWORD
+spring.datasource.username=SEU_USUARIO
+spring.datasource.password=SUA_SENHA
 spring.jpa.hibernate.ddl-auto=update
 ```
-
-> ⚠️ This file contains sensitive credentials and should not be versioned with real data in a production project.
-
-3. Run the application:
+ 
+> ⚠️ Este arquivo contém credenciais sensíveis e não deveria ser versionado com dados reais em um projeto de produção.
+ 
+3. Execute a aplicação:
 ```bash
 ./mvnw spring-boot:run
 ```
-
-4. The API will be available at `http://localhost:8080`
-
-### Testing
-
-It is recommended to use [Postman](https://www.postman.com/) or [Insomnia](https://insomnia.rest/) to test the endpoints.
-
-## 🗺️ Next steps (roadmap)
-
-- [ ] `Appointment` entity (consultations), with relationship to `Pet`
-- [ ] Endpoint to list all pets of a specific owner
-- [ ] Authentication and authorization with Spring Security + JWT
-
-## 📝 What I learned building this project
-
-- Bidirectional relationship `@OneToMany` / `@ManyToOne`, and the role of `mappedBy` to indicate which side "owns" the relationship that controls the foreign key
-- Response DTOs that expose only summarized data from a related entity (`ownerName`), instead of nesting the entire object
-- Debugging a real synchronization issue between the Entity and the database schema: when an ID generation annotation is added after the table already exists, it is necessary to recreate the table for the change to take effect
-- Reinforcement of separation of concerns between each Service — the rule "the owner must exist" belongs to `PetService`, not `OwnerService`
-
+ 
+4. A API estará disponível em `http://localhost:8080`
+ 
+### Testando
+ 
+Recomenda-se o uso do [Postman](https://www.postman.com/) ou [Insomnia](https://insomnia.rest/) para testar os endpoints.
+ 
+## 🗺️ Próximos passos (roadmap)
+ 
+- [ ] Entidade `Appointment` (consultas), com relacionamento a `Pet`
+- [ ] Endpoint para listar todos os pets de um tutor específico
+- [ ] Autenticação e autorização com Spring Security + JWT
+ 
+## 📝 O que aprendi construindo esse projeto
+ 
+- Relacionamento bidirecional `@OneToMany` / `@ManyToOne`, e o papel do `mappedBy` para indicar qual lado "dono" da relação controla a chave estrangeira
+- DTOs de resposta que expõem apenas um dado resumido de uma entidade relacionada (`ownerName`), em vez de aninhar o objeto inteiro
+- Debug de um problema real de sincronização entre a Entity e o schema do banco: quando uma anotação de geração de ID é adicionada depois que a tabela já existe, é necessário recriar a tabela para a mudança ter efeito
+- Reforço da separação entre a responsabilidade de cada Service — a regra "o tutor precisa existir" pertence ao `PetService`, não ao `OwnerService`
+ 
 ---
-
-Developed by Petterson Oliveira as part of my Java and Spring Boot learning portfolio.
+ 
+Desenvolvido por Petterson Oliveira como parte do meu portfólio de estudos em Java e Spring Boot.
