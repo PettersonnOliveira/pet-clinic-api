@@ -8,9 +8,9 @@ public record PetResponseDTO(
         String species,
         String breed,
         Integer age,
-        OwnerResponseDTO ownerName;
+        String ownerName
 ) {
     public PetResponseDTO (Pet pet){
-        this(pet.getId(), pet.getName(), pet.getSpecies(), pet.getBreed(), pet.getAge(),pet.);
+        this(pet.getId(), pet.getName(), pet.getSpecies(), pet.getBreed(), pet.getAge(),pet.getOwner().getName());
     }
 }

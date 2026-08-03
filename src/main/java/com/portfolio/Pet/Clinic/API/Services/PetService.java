@@ -3,28 +3,33 @@ package com.portfolio.Pet.Clinic.API.Services;
 import com.portfolio.Pet.Clinic.API.DTOS.PetRequestDTO;
 import com.portfolio.Pet.Clinic.API.DTOS.PetResponseDTO;
 import com.portfolio.Pet.Clinic.API.DTOS.PetUpdateDTO;
+import com.portfolio.Pet.Clinic.API.Entities.Owner;
 import com.portfolio.Pet.Clinic.API.Entities.Pet;
 import com.portfolio.Pet.Clinic.API.Exceptions.BusinessRuleException;
 import com.portfolio.Pet.Clinic.API.Exceptions.ResourceNotFoundException;
+import com.portfolio.Pet.Clinic.API.Repositories.OwnerRepository;
 import com.portfolio.Pet.Clinic.API.Repositories.PetRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+
 @Service
 public class PetService {
     private final PetRepository petRepository;
+    private final OwnerRepository ownerRepository;
 
-    public PetService(PetRepository petRepository) {
+    public PetService(PetRepository petRepository, OwnerRepository ownerRepository) {
         this.petRepository = petRepository;
+        this.ownerRepository = ownerRepository;
     }
 
     public PetResponseDTO create(PetRequestDTO inputData){
-        if (petRepository.existsById(id)){
-            throw new BusinessRuleException("O dono precisa existir para o pet ser criado");
-        }
+        Owner owner = ownerRepository.findById(inputData.ownerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Owner não encontrado"));
 
         Pet pet = new Pet(inputData);
+        pet.setOwner(owner);
         Pet petSalva = petRepository.save(pet);
         return new PetResponseDTO(petSalva);
     }

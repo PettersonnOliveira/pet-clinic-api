@@ -1,11 +1,14 @@
 package com.portfolio.Pet.Clinic.API.Entities;
 
 import com.portfolio.Pet.Clinic.API.DTOS.PetRequestDTO;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 import java.util.Objects;
-
+@Entity
+@Table(name = "pets")
 public class Pet {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private String species;
@@ -23,7 +26,6 @@ public class Pet {
     this.species = inputData.species();
     this.breed = inputData.breed();
     this.age = inputData.age();
-    this.owner = inputData.ow
     }
 
     public Long getId() {

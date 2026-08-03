@@ -4,7 +4,8 @@ public record PetRequestDTO(
         String name,
         String species,
         String breed,
-        Integer age
+        Integer age,
+        Long ownerId
 
 ){
 }
